@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.mjchs.beaconApp"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          android:versionCode="1"
+          android:versionName="1.0">
+
+    <uses-sdk
+        android:minSdkVersion="18"
+        android:targetSdkVersion="23"/>
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true"/>
+
+
+    <application
+        android:name=".AppClass"
+        android:label="BeaconApp"
+        android:theme="@style/EstimoteTheme">
+
+        <service android:name=".services.RangingService"/>
+
+        <activity
+            android:name=".activities.ListBeacons"
+            android:label="Beacon overview"
+            android:screenOrientation="portrait">
+            <!-- The ListBeacons is our Launcher/Main activity-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".activities.Sensors"
+            android:label="Sensor Activity"
+            android:screenOrientation="portrait">
+        </activity>
+
+    </application>
+
+</manifest>
