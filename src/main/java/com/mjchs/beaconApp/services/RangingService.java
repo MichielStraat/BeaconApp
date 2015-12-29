@@ -70,30 +70,16 @@ public class RangingService extends Service
 
                 try
                 {
-                    //TODO below code is for inference, this needs to be included later
-                    /*JSONObject obj = new JSONObject();
+                    /*Send all beacon data to the server*/
+                    JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
+                    Log.d(TAG, JSONAllBeacon.toString());
+                    new SendBeaconData().execute(JSONAllBeacon);
 
-                    Calendar cal = Calendar.getInstance();
-                    SimpleDateFormat sdf = new SimpleDateFormat("y:M:d:HH:mm:ss");
-                    DateTime currTime = DateTime.now();
-                    long millisBetween = currTime.getMillis() - previousTime.getMillis();
-                    previousTime = currTime;
-                    obj.put("Interval", millisBetween);
-                    obj.put("Date", sdf.format(cal.getTime()));
-                    String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-                    obj.put("Android_id", android_id);
-
-                    //Infer room
+                    //optional: send inference too
                     int room = new Inference(list).performKNN(3);
-                    obj.put("Beacons", String.valueOf(room));
-
-                    Log.d(TAG, obj.toString());*/
-
-                /*now send to server*/
-
-                    JSONObject obj = MakeJSON.makeJSONAllBeacons(list);
-                  //  Log.d(TAG, obj.toString());
-                    new SendBeaconData().execute(obj);
+                    JSONObject JSONInference = MakeJSON.makeJSONInference(room);
+                    Log.d(TAG, JSONInference.toString());
+                    new SendBeaconData().execute(JSONInference);
                 }
                 catch (Exception ex)
                 {

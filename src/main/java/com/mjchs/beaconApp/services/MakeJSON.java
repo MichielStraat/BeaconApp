@@ -1,12 +1,17 @@
 package com.mjchs.beaconApp.services;
 
+import android.provider.Settings;
 import android.util.Log;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.Utils;
+import com.mjchs.beaconApp.Inference.Inference;
 
+import org.joda.time.DateTime;
 import org.json.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -39,6 +44,23 @@ public class MakeJSON
             obj.put("beacons", foundBeacons);
             //obj.put("beacons", foundBeacons);
             //obj.put("instance_id", )
+        }
+        catch (JSONException ex)
+        {
+            Log.d(TAG, ex.getMessage());
+        }
+
+        return obj;
+    }
+
+    public static JSONObject makeJSONInference(int room)
+    {
+        JSONObject obj = new JSONObject();
+
+        try
+        {
+            obj.put("user_id", "AUser");
+            obj.put("inRoom", room);
         }
         catch (JSONException ex)
         {
