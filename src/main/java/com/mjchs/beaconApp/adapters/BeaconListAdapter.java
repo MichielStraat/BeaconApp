@@ -52,14 +52,8 @@ public class BeaconListAdapter extends BaseAdapter {
 
   private void bind(Beacon beacon, View view) {
     ViewHolder holder = (ViewHolder) view.getTag();
-    String prox = "Unknown";
     Utils.Proximity p = Utils.computeProximity(beacon);
-    switch(p)
-    {
-      case FAR: prox = "Far"; break;
-      case IMMEDIATE: prox = "Immediate"; break;
-      case NEAR: prox = "Near"; break;
-    }
+    String prox = p.name();
     holder.macTextView.setText(String.format("MAC: %s: %s (%.2fm)", beacon.getMacAddress().toStandardString(), prox, Utils.computeAccuracy(beacon)));
     holder.majorTextView.setText("Major: " + beacon.getMajor());
     holder.minorTextView.setText("Minor: " + beacon.getMinor());

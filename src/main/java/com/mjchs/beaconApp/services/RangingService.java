@@ -68,8 +68,10 @@ public class RangingService extends Service
                 //Set the data in the model
                 model.setData(list);
 
-                try {
-                    JSONObject obj = new JSONObject();
+                try
+                {
+                    //TODO below code is for inference, this needs to be included later
+                    /*JSONObject obj = new JSONObject();
 
                     Calendar cal = Calendar.getInstance();
                     SimpleDateFormat sdf = new SimpleDateFormat("y:M:d:HH:mm:ss");
@@ -85,24 +87,12 @@ public class RangingService extends Service
                     int room = new Inference(list).performKNN(3);
                     obj.put("Beacons", String.valueOf(room));
 
-                    //For now only put closest Beacon!
-                    /* Beacon closest = null;
-                    String minorRssi = null;
-
-                    if (!list.isEmpty()) {
-                        closest = list.get(0);
-                        minorRssi = String.format("%d:%d", closest.getMinor(), closest.getRssi());
-                    }
-                    else
-                    {
-                        minorRssi = "nothing";
-                    }
-
-                    obj.put("Beacons", minorRssi);
-                    */
-                    Log.d(TAG, obj.toString());
+                    Log.d(TAG, obj.toString());*/
 
                 /*now send to server*/
+
+                    JSONObject obj = MakeJSON.makeJSONAllBeacons(list);
+                  //  Log.d(TAG, obj.toString());
                     new SendBeaconData().execute(obj);
                 }
                 catch (Exception ex)
