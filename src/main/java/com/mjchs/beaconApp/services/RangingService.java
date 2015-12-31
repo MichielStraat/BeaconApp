@@ -41,9 +41,6 @@ public class RangingService extends Service
 
     private static Region OUR_BEACONS = null;
 
-
-    private DateTime previousTime;
-
     @Override
     public void onCreate()
     {
@@ -51,8 +48,6 @@ public class RangingService extends Service
         //The custom UUID that is made
         UUID idBeacons = UUID.fromString("316CDCA2-8FE3-446F-8864-D7D2DA69A3F4");
         OUR_BEACONS = new Region("beacons", idBeacons, null, null);
-
-        previousTime = DateTime.now();
 
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();

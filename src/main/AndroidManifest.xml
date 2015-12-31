@@ -2,7 +2,10 @@
 <manifest package="com.mjchs.beaconApp"
           xmlns:android="http://schemas.android.com/apk/res/android"
           android:versionCode="1"
-          android:versionName="1.0">
+          android:versionName="1.0"
+          android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
 
     <uses-sdk
         android:minSdkVersion="18"
@@ -17,6 +20,13 @@
         android:name=".AppClass"
         android:label="BeaconApp"
         android:theme="@style/EstimoteTheme">
+
+
+        <receiver android:name=".receivers.autostart">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <service android:name=".services.RangingService"/>
 
