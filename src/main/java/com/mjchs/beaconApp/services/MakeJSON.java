@@ -13,6 +13,7 @@ import org.json.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import android.provider.Settings.Secure;
 
 /**
  * Created by mjchs on 29-12-2015.
@@ -21,24 +22,25 @@ public class MakeJSON
 {
     public final static String TAG = "MakeJSON";
 
-    public static JSONObject makeJSONAllBeacons(List<Beacon> beaconList)
+    public static JSONObject makeJSONAllBeacons(List<Beacon> beaconList, String android_id)
     {
         JSONObject obj = new JSONObject();
-        //TODO look at sensor id, we shouldnt add a timestamp here (?)
+
         try
         {
-            obj.put("sensor_id", "1");
-            obj.put("user_id", "AUser");
+            obj.put("sensor_id", Sensors.PROXIMITY);
+            obj.put("user_id", android_id);
             JSONArray foundBeacons = new JSONArray();
 
             for (Beacon b : beaconList)
             {
                 JSONObject beaconDat = new JSONObject();
-                beaconDat.put("instance_id", b.getMajor());
+                beaconDat.put("major", b.getMajor());
+                beaconDat.put("minor", b.getMinor());
                 beaconDat.put("rssi", b.getRssi());
                 beaconDat.put("proximity_zone", Utils.computeProximity(b).name());
                 beaconDat.put("proximity_distance", Utils.computeAccuracy(b));
-                foundBeacons.put(beaconDat.toString());
+                foundBeacons.put(beaconDat);
                 //TODO temperature and movement
             }
             obj.put("beacons", foundBeacons);

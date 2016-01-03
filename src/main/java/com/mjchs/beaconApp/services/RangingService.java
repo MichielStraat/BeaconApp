@@ -46,8 +46,7 @@ public class RangingService extends Service
     {
         super.onCreate();
         //The custom UUID that is made
-        UUID idBeacons = UUID.fromString("316CDCA2-8FE3-446F-8864-D7D2DA69A3F4");
-        OUR_BEACONS = new Region("beacons", idBeacons, null, null);
+        OUR_BEACONS = new Region("beacons", null, null, null);
 
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
@@ -66,7 +65,9 @@ public class RangingService extends Service
                 try
                 {
                     /*Send all beacon data to the server*/
-                    JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
+                    String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+                            Settings.Secure.ANDROID_ID);
+                    JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list, android_id);
                     Log.d(TAG, JSONAllBeacon.toString());
                     new SendBeaconData().execute(JSONAllBeacon);
 
