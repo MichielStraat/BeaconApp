@@ -1,12 +1,14 @@
 package com.mjchs.beaconApp.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.estimote.sdk.SystemRequirementsChecker;
 import com.mjchs.beaconApp.AppClass;
 import com.mjchs.beaconApp.Model.DataModel;
 import com.mjchs.beaconApp.R;
@@ -43,6 +45,10 @@ public class ListBeacons extends BaseAppActivity implements Observer
 
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
+
+        //check if bluetooth etc is on
+        SystemRequirementsChecker.checkWithDefaultDialogs(this);
+
         //Start our background ranging service
         Intent intent = new Intent(this, RangingService.class);
         startService(intent);
@@ -50,11 +56,9 @@ public class ListBeacons extends BaseAppActivity implements Observer
         adapter = new BeaconListAdapter(this);
         ListView listView = (ListView) findViewById(R.id.device_list);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new ListView.OnItemClickListener()
-        {
+        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 /*When a beacons is clicked, we will show its sensor values*/
                 Beacon clickedBeacon = beacons.get(position);
                 Intent i = new Intent(ListBeacons.this, Sensors.class);
@@ -63,7 +67,6 @@ public class ListBeacons extends BaseAppActivity implements Observer
                 startActivity(i);
             }
         });
-
     }
 
     /**
@@ -112,8 +115,10 @@ public class ListBeacons extends BaseAppActivity implements Observer
             public void run()
             {
                 beacons = model.getBeaconList();
-                Log.d(TAG,"THE UPDATE IS IN");
-                toolbar.setSubtitle("Beacons in proximity: " + beacons.size());
+                Log.d(TAG, "THE UPDATE IS IN");
+                toolbar.setTitle("Beacons in proximity: " + beacons.size());
+                toolbar.setSubtitle("Ranging is running");
+                toolbar.setSubtitleTextColor(Color.parseColor("#78AB46"));
                 adapter.replaceWith(beacons);
             }
         });

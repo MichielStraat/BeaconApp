@@ -1,18 +1,27 @@
 package com.mjchs.beaconApp.services;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.service.notification.StatusBarNotification;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import com.estimote.sdk.SystemRequirementsChecker;
 import com.mjchs.beaconApp.AppClass;
 import com.mjchs.beaconApp.Inference.Inference;
 import com.mjchs.beaconApp.Model.DataModel;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
+import com.mjchs.beaconApp.R;
 import com.mjchs.beaconApp.Tasks.SendBeaconData;
 import com.mjchs.beaconApp.activities.ListBeacons;
 
@@ -90,6 +99,7 @@ public class RangingService extends Service
 
     private void startScanning()
     {
+        mBeaconManager.stopRanging(OUR_BEACONS);
         mBeaconManager.connect(new BeaconManager.ServiceReadyCallback()
         {
             @Override
@@ -98,6 +108,8 @@ public class RangingService extends Service
                 mBeaconManager.startRanging(OUR_BEACONS);
             }
         });
+
+
     }
 
     @Nullable
@@ -111,6 +123,23 @@ public class RangingService extends Service
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         startScanning();
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(android.support.v7.appcompat.R.drawable.notification_template_icon_bg)
+                .setContentTitle("BeaconApp")
+                .setContentText("Ranging for beacons...")
+                .setOngoing(true);
+
+        Intent restulIntent = new Intent(this, ListBeacons.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(ListBeacons.class);
+        stackBuilder.addNextIntent(restulIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(0, mBuilder.build());
+
+
         return Service.START_STICKY;
     }
 
@@ -121,6 +150,9 @@ public class RangingService extends Service
     @Override
     public void onDestroy()
     {
+        mBeaconManager.stopRanging(OUR_BEACONS);
+        mBeaconManager.disconnect();
+        Log.d(TAG, "SERVICE HAS STOPPED");
         super.onDestroy();
     }
 }

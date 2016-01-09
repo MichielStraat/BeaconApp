@@ -18,7 +18,6 @@ public abstract class BaseAppActivity extends AppCompatActivity {
 
     toolbar = (Toolbar) findViewById(R.id.toolbar);
     toolbar.setNavigationIcon(R.drawable.ic_action_navigation_arrow_back);
-    toolbar.setTitle(getTitle());
     toolbar.setNavigationOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         onBackPressed();
