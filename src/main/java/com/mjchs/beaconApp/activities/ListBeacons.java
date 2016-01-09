@@ -3,6 +3,7 @@ package com.mjchs.beaconApp.activities;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -28,8 +29,11 @@ public class ListBeacons extends BaseAppActivity implements Observer
 {
     public static final String TAG = "ListBeaconActivity";
     public static final String EXTRA_BEACON = "beacon";
+    public static final String PREFS_FILE = "prefs_file";
+    public static final String RANG_SET = "rangingEnabled";
 
-    /*Adapter will return views when we scroll through the listview*/
+    private SharedPreferences settings;
+
     private BeaconListAdapter adapter;
     private List<Beacon> beacons;
 
@@ -49,6 +53,7 @@ public class ListBeacons extends BaseAppActivity implements Observer
     {
         super.onCreate(savedInstanceState);
 
+        settings = getSharedPreferences(PREFS_FILE, 0);
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
 
@@ -66,9 +71,18 @@ public class ListBeacons extends BaseAppActivity implements Observer
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
 
         //Start our background ranging service
-        Intent intent = new Intent(this, RangingService.class);
-        startService(intent);
+        boolean rangingEnabled = settings.getBoolean(RANG_SET, true);
 
+        if (rangingEnabled)
+        {
+            startService(new Intent(this, RangingService.class));
+            toggleRanging.setText("OFF");
+        }
+        else
+        {
+            stopService(new Intent(ListBeacons.this, RangingService.class));
+            toggleRanging.setText("ON");
+        }
 
         toggleRanging.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,11 +92,17 @@ public class ListBeacons extends BaseAppActivity implements Observer
                 {
                     stopService(new Intent(ListBeacons.this, RangingService.class));
                     toggleRanging.setText("ON");
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean(RANG_SET, false);
+                    editor.commit();
                 }
                 else
                 {
                     startService(new Intent(ListBeacons.this, RangingService.class));
                     toggleRanging.setText("OFF");
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean(RANG_SET, true);
+                    editor.commit();
                 }
             }
         });

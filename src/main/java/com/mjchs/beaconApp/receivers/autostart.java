@@ -15,6 +15,6 @@ public class autostart extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Intent i = new Intent(context, RangingService.class);
         context.startService(i);
-        Log.i("com.mjchs.beaconApp.receivers.autostart", "started");
+        Log.i("autostart", "started");
     }
 }
