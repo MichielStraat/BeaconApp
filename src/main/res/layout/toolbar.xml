@@ -6,4 +6,16 @@
     android:layout_height="wrap_content"
     app:theme="@style/EstimoteToolbar">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/toggle_ranging"
+        android:textSize="12sp"
+        android:background="@null"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:textColor="#FFFFFF"
+        android:layout_gravity="right"
+        android:text="Toggle" />
+
 </android.support.v7.widget.Toolbar>

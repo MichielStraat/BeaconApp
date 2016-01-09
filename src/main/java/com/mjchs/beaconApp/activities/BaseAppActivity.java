@@ -15,13 +15,5 @@ public abstract class BaseAppActivity extends AppCompatActivity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(getLayoutResId());
-
-    toolbar = (Toolbar) findViewById(R.id.toolbar);
-    toolbar.setNavigationIcon(R.drawable.ic_action_navigation_arrow_back);
-    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        onBackPressed();
-      }
-    });
   }
 }

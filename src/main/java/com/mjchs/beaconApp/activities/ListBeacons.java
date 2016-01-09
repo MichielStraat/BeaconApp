@@ -1,11 +1,15 @@
 package com.mjchs.beaconApp.activities;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.estimote.sdk.SystemRequirementsChecker;
@@ -32,6 +36,8 @@ public class ListBeacons extends BaseAppActivity implements Observer
     private AppClass globState;
     private DataModel model;
 
+    private Button toggleRanging;
+
     @Override
     protected int getLayoutResId()
     {
@@ -46,12 +52,40 @@ public class ListBeacons extends BaseAppActivity implements Observer
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_action_navigation_arrow_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        toggleRanging = (Button) toolbar.findViewById(R.id.toggle_ranging);
         //check if bluetooth etc is on
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
 
         //Start our background ranging service
         Intent intent = new Intent(this, RangingService.class);
         startService(intent);
+
+
+        toggleRanging.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //stop service
+                if (isRanging(RangingService.class))
+                {
+                    stopService(new Intent(ListBeacons.this, RangingService.class));
+                    toggleRanging.setText("ON");
+                }
+                else
+                {
+                    startService(new Intent(ListBeacons.this, RangingService.class));
+                    toggleRanging.setText("OFF");
+                }
+            }
+        });
 
         adapter = new BeaconListAdapter(this);
         ListView listView = (ListView) findViewById(R.id.device_list);
@@ -109,18 +143,27 @@ public class ListBeacons extends BaseAppActivity implements Observer
 
     public void update(Observable o, Object arg)
     {
-        runOnUiThread(new Runnable()
-        {
+        runOnUiThread(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 beacons = model.getBeaconList();
                 Log.d(TAG, "THE UPDATE IS IN");
-                toolbar.setTitle("Beacons in proximity: " + beacons.size());
+                toolbar.setTitle("#Beacons " + beacons.size());
                 toolbar.setSubtitle("Ranging is running");
                 toolbar.setSubtitleTextColor(Color.parseColor("#78AB46"));
                 adapter.replaceWith(beacons);
             }
         });
+    }
+
+    private boolean isRanging(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
