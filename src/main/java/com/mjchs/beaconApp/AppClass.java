@@ -11,6 +11,8 @@ import com.estimote.sdk.EstimoteSDK;
  */
 public class AppClass extends Application
 {
+    public static final String PREFS_FILE = "prefs_file";
+    public static final String RANG_SET = "rangingEnabled";
     private DataModel mModel;
     private BeaconManager mManager;
 

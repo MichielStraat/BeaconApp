@@ -29,8 +29,7 @@ public class ListBeacons extends BaseAppActivity implements Observer
 {
     public static final String TAG = "ListBeaconActivity";
     public static final String EXTRA_BEACON = "beacon";
-    public static final String PREFS_FILE = "prefs_file";
-    public static final String RANG_SET = "rangingEnabled";
+
 
     private SharedPreferences settings;
 
@@ -53,7 +52,7 @@ public class ListBeacons extends BaseAppActivity implements Observer
     {
         super.onCreate(savedInstanceState);
 
-        settings = getSharedPreferences(PREFS_FILE, 0);
+        settings = getSharedPreferences(AppClass.PREFS_FILE, 0);
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
 
@@ -71,17 +70,17 @@ public class ListBeacons extends BaseAppActivity implements Observer
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
 
         //Start our background ranging service
-        boolean rangingEnabled = settings.getBoolean(RANG_SET, true);
+        boolean rangingEnabled = settings.getBoolean(AppClass.RANG_SET, true);
 
         if (rangingEnabled)
         {
             startService(new Intent(this, RangingService.class));
-            toggleRanging.setText("OFF");
+            updateUIRangingOn();
         }
         else
         {
             stopService(new Intent(ListBeacons.this, RangingService.class));
-            toggleRanging.setText("ON");
+            updateUIRangingOff();
         }
 
         toggleRanging.setOnClickListener(new View.OnClickListener() {
@@ -91,17 +90,17 @@ public class ListBeacons extends BaseAppActivity implements Observer
                 if (isRanging(RangingService.class))
                 {
                     stopService(new Intent(ListBeacons.this, RangingService.class));
-                    toggleRanging.setText("ON");
+                    updateUIRangingOff();
                     SharedPreferences.Editor editor = settings.edit();
-                    editor.putBoolean(RANG_SET, false);
+                    editor.putBoolean(AppClass.RANG_SET, false);
                     editor.commit();
                 }
                 else
                 {
                     startService(new Intent(ListBeacons.this, RangingService.class));
-                    toggleRanging.setText("OFF");
+                    updateUIRangingOn();
                     SharedPreferences.Editor editor = settings.edit();
-                    editor.putBoolean(RANG_SET, true);
+                    editor.putBoolean(AppClass.RANG_SET, true);
                     editor.commit();
                 }
             }
@@ -169,8 +168,6 @@ public class ListBeacons extends BaseAppActivity implements Observer
                 beacons = model.getBeaconList();
                 Log.d(TAG, "THE UPDATE IS IN");
                 toolbar.setTitle("#Beacons " + beacons.size());
-                toolbar.setSubtitle("Ranging is running");
-                toolbar.setSubtitleTextColor(Color.parseColor("#78AB46"));
                 adapter.replaceWith(beacons);
             }
         });
@@ -185,5 +182,19 @@ public class ListBeacons extends BaseAppActivity implements Observer
         }
 
         return false;
+    }
+
+    private void updateUIRangingOn()
+    {
+        toggleRanging.setText("Set OFF");
+        toolbar.setSubtitle("Ranging is running");
+        toolbar.setSubtitleTextColor(Color.parseColor("#78AB46"));
+    }
+
+    private void updateUIRangingOff()
+    {
+        toggleRanging.setText("Set ON");
+        toolbar.setSubtitle("Ranging not running");
+        toolbar.setSubtitleTextColor(Color.parseColor("#CC0000"));
     }
 }

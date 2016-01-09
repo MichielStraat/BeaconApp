@@ -50,6 +50,8 @@ public class RangingService extends Service
 
     private static Region OUR_BEACONS = null;
 
+    private static final int NOTCONST = 223;
+
     @Override
     public void onCreate()
     {
@@ -137,7 +139,7 @@ public class RangingService extends Service
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+        mNotificationManager.notify(NOTCONST, mBuilder.build());
 
 
         return Service.START_STICKY;
@@ -152,6 +154,11 @@ public class RangingService extends Service
     {
         mBeaconManager.stopRanging(OUR_BEACONS);
         mBeaconManager.disconnect();
+
+        //cancel the notification that the server was running
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(NOTCONST);
+
         Log.d(TAG, "SERVICE HAS STOPPED");
         super.onDestroy();
     }
