@@ -1,6 +1,5 @@
 package com.mjchs.beaconApp.services;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -8,31 +7,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.service.notification.StatusBarNotification;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import com.estimote.sdk.SystemRequirementsChecker;
 import com.mjchs.beaconApp.AppClass;
 import com.mjchs.beaconApp.Inference.Inference;
 import com.mjchs.beaconApp.Model.DataModel;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
-import com.mjchs.beaconApp.R;
 import com.mjchs.beaconApp.Tasks.SendBeaconData;
+import com.mjchs.beaconApp.Utils.MakeJSON;
 import com.mjchs.beaconApp.activities.ListBeacons;
 
-import org.joda.time.DateTime;
 import org.json.JSONObject;
 
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 
 /**
@@ -76,9 +69,7 @@ public class RangingService extends Service
                 try
                 {
                     /*Send all beacon data to the server*/
-                    String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
-                            Settings.Secure.ANDROID_ID);
-                    JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list, android_id);
+                    JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
                     Log.d(TAG, JSONAllBeacon.toString());
                     new SendBeaconData().execute(JSONAllBeacon);
 

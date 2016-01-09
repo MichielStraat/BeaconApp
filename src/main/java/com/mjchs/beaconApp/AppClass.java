@@ -1,6 +1,7 @@
 package com.mjchs.beaconApp;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 import com.mjchs.beaconApp.Model.DataModel;
 import com.estimote.sdk.BeaconManager;
@@ -12,7 +13,10 @@ import com.estimote.sdk.EstimoteSDK;
 public class AppClass extends Application
 {
     public static final String PREFS_FILE = "prefs_file";
-    public static final String RANG_SET = "rangingEnabled";
+    public static final String SET_RANG = "rangingEnabled";
+    public static final String SET_USER = "userid";
+    public static String userID;
+
     private DataModel mModel;
     private BeaconManager mManager;
 
@@ -21,7 +25,9 @@ public class AppClass extends Application
     {
         super.onCreate();
 
-        EstimoteSDK.initialize(getApplicationContext(), "occudet-hr9",  "8dcb10d402b34332b723208a022ebf34");
+        EstimoteSDK.initialize(getApplicationContext(), "occudet-hr9", "8dcb10d402b34332b723208a022ebf34");
+        SharedPreferences settings = getSharedPreferences(PREFS_FILE, 0);
+        userID = settings.getString(SET_USER, "default");
 
         mManager = new BeaconManager(getApplicationContext());
         mModel = new DataModel();

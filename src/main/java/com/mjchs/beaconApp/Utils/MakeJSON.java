@@ -1,11 +1,13 @@
-package com.mjchs.beaconApp.services;
+package com.mjchs.beaconApp.Utils;
 
 import android.provider.Settings;
 import android.util.Log;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.Utils;
+import com.mjchs.beaconApp.AppClass;
 import com.mjchs.beaconApp.Inference.Inference;
+import com.mjchs.beaconApp.services.Sensors;
 
 import org.joda.time.DateTime;
 import org.json.*;
@@ -22,14 +24,14 @@ public class MakeJSON
 {
     public final static String TAG = "MakeJSON";
 
-    public static JSONObject makeJSONAllBeacons(List<Beacon> beaconList, String android_id)
+    public static JSONObject makeJSONAllBeacons(List<Beacon> beaconList)
     {
         JSONObject obj = new JSONObject();
 
         try
         {
             obj.put("sensor_id", Sensors.PROXIMITY);
-            obj.put("user_id", android_id);
+            obj.put("user_id", AppClass.userID);
             JSONArray foundBeacons = new JSONArray();
 
             for (Beacon b : beaconList)
@@ -61,7 +63,7 @@ public class MakeJSON
 
         try
         {
-            obj.put("user_id", "AUser");
+            obj.put("user_id", AppClass.userID);
             obj.put("inRoom", room);
         }
         catch (JSONException ex)

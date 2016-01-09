@@ -16,7 +16,7 @@ public class autostart extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences settings = context.getSharedPreferences(AppClass.PREFS_FILE, 0);
-        boolean rangingEnabled = settings.getBoolean(AppClass.RANG_SET, true);
+        boolean rangingEnabled = settings.getBoolean(AppClass.SET_RANG, false);
 
         if (rangingEnabled)
         {
