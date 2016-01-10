@@ -1,5 +1,7 @@
 package com.mjchs.beaconApp.Inference;
 
+import android.util.Log;
+
 import com.estimote.sdk.Beacon;
 
 import java.util.ArrayList;
@@ -55,8 +57,8 @@ public class CustomHashMap
             for (int j = 0; j != k; ++j)
             {
                 Beacon b = mBeacons.get(j);
-
-                if (b.getMajor() == m.getKey().intValue())
+                int x = b.getMajor() << -8 >>> -8;
+                if (x == m.getKey().intValue())
                 {
                     aggrRSSI += b.getRssi();
                 }
@@ -82,6 +84,7 @@ public class CustomHashMap
 
         for (Map.Entry<Integer, Integer> m : s)
         {
+            Log.d("CUSTOMHASHMAP", m.getKey() + " " + m.getValue());
             if (m.getValue().intValue() > max)
             {
                 max = m.getValue().intValue();
@@ -90,6 +93,7 @@ public class CustomHashMap
         }
 
         List<Map.Entry<Integer, Integer>> l = isUnique(s, max);
+        Log.d("CUSTOMHASHMAP", String.valueOf(l) + " " + String.valueOf(l.size()));
         if (l.size() <= 1)
             return room;
 

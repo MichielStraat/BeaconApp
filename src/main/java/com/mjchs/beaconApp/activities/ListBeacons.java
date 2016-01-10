@@ -216,6 +216,7 @@ public class ListBeacons extends BaseAppActivity implements Observer, InputUser.
                 }
                 else
                 {
+                    SystemRequirementsChecker.checkWithDefaultDialogs(ListBeacons.this);
                     startService(new Intent(ListBeacons.this, RangingService.class));
                     updateUIRangingOn();
                     SharedPreferences.Editor editor = settings.edit();

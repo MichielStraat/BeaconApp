@@ -1,5 +1,7 @@
 package com.mjchs.beaconApp.Inference;
 
+import android.util.Log;
+
 import com.estimote.sdk.Beacon;
 
 import java.util.List;
@@ -36,7 +38,11 @@ public class Inference
 
         for (int j = 0; j != k; ++j)
         {
-            roomCount.put(mBeacons.get(j).getMajor());
+            //TODO: there is an assumption that we dont find beacons from other floors for now
+            int room = mBeacons.get(j).getMajor();
+            room = room << -8 >>> -8;
+            Log.d("INFERENCE", "Beacon in room: " + room + " found");
+            roomCount.put(room);
         }
 
         return roomCount.getMax();
