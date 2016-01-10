@@ -7,6 +7,8 @@ import com.mjchs.beaconApp.Model.DataModel;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.EstimoteSDK;
 
+import java.util.UUID;
+
 /**
  * Created by mjchs on 4-12-2015.
  */
@@ -15,6 +17,7 @@ public class AppClass extends Application
     public static final String PREFS_FILE = "prefs_file";
     public static final String SET_RANG = "rangingEnabled";
     public static final String SET_USER = "userid";
+    public static final UUID BUUID = UUID.fromString("316CDCA2-8FE3-446F-8864-D7D2DA69A3F4");
     public static String userID;
 
     private DataModel mModel;

@@ -50,7 +50,7 @@ public class RangingService extends Service
     {
         super.onCreate();
         //The custom UUID that is made
-        OUR_BEACONS = new Region("beacons", null, null, null);
+        OUR_BEACONS = new Region("beacons", AppClass.BUUID, null, null);
 
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
@@ -59,35 +59,42 @@ public class RangingService extends Service
         mBeaconManager.setRangingListener(new BeaconManager.RangingListener()
         {
             @Override
-            public void onBeaconsDiscovered(Region region, List<Beacon> list)
-            {
+            public void onBeaconsDiscovered(Region region, List<Beacon> list) {
                 Log.d(TAG, "FROM SERIVCE, BEACONS FOUND WITH RANGING: " + ListBeacons.stringRepList(list));
 
                 //Set the data in the model
                 model.setData(list);
 
-                try
+                if (!list.isEmpty())
                 {
+                    try
+                    {
                     /*Send all beacon data to the server*/
-                    JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
-                    Log.d(TAG, JSONAllBeacon.toString());
-                    new SendBeaconData().execute(JSONAllBeacon);
+                        JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
+                        Log.d(TAG, JSONAllBeacon.toString());
+                        new SendBeaconData().execute(JSONAllBeacon);
 
-                    //optional: send inference too
-                    int room = new Inference(list).performKNN(3);
-                    JSONObject JSONInference = MakeJSON.makeJSONInference(room);
-                    Log.d(TAG, JSONInference.toString());
-                    new SendBeaconData().execute(JSONInference);
+                        //optional: send inference too
+                        int room = new Inference(list).performKNN(3);
+                        JSONObject JSONInference = MakeJSON.makeJSONInference(room);
+                        Log.d(TAG, JSONInference.toString());
+                        new SendBeaconData().execute(JSONInference);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.d(TAG, ex.getMessage());
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Log.d(TAG, ex.getMessage());
+                    mBeaconManager.setBackgroundScanPeriod(2000, 25000);
+                    mBeaconManager.setForegroundScanPeriod(2000, 25000);
                 }
             }
         });
 
-        mBeaconManager.setBackgroundScanPeriod(2000, 1000);
-        mBeaconManager.setForegroundScanPeriod(2000, 1000);
+        mBeaconManager.setBackgroundScanPeriod(2000, 5000);
+        mBeaconManager.setForegroundScanPeriod(2000, 5000);
     }
 
     private void startScanning()
@@ -101,8 +108,6 @@ public class RangingService extends Service
                 mBeaconManager.startRanging(OUR_BEACONS);
             }
         });
-
-
     }
 
     @Nullable
@@ -131,7 +136,6 @@ public class RangingService extends Service
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(NOTCONST, mBuilder.build());
-
 
         return Service.START_STICKY;
     }
