@@ -84,6 +84,9 @@ public class RangingService extends Service
                     {
                         Log.d(TAG, ex.getMessage());
                     }
+
+                    mBeaconManager.setBackgroundScanPeriod(2000, 5000);
+                    mBeaconManager.setForegroundScanPeriod(2000, 5000);
                 }
                 else
                 {
