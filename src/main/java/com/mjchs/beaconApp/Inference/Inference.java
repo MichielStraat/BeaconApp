@@ -40,7 +40,7 @@ public class Inference
         {
             //TODO: there is an assumption that we dont find beacons from other floors for now
             int room = mBeacons.get(j).getMajor();
-            room = room << -8 >>> -8;
+            room /= 1000;
             Log.d("INFERENCE", "Beacon in room: " + room + " found");
             roomCount.put(room);
         }

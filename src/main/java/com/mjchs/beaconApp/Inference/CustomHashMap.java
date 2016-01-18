@@ -57,7 +57,7 @@ public class CustomHashMap
             for (int j = 0; j != k; ++j)
             {
                 Beacon b = mBeacons.get(j);
-                int x = b.getMajor() << -8 >>> -8;
+                int x = b.getMajor() / 1000;
                 if (x == m.getKey().intValue())
                 {
                     aggrRSSI += b.getRssi();

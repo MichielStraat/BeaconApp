@@ -23,8 +23,8 @@ import android.provider.Settings.Secure;
 public class MakeJSON
 {
     public final static String TAG = "MakeJSON";
-    private static final String SENSORID = "sensor_id";
-    private static final String USERID = "user_id";
+    private static final String SENSORID = "sensorId";
+    private static final String USERID = "userId";
 
     public static JSONObject makeJSONAllBeacons(List<Beacon> beaconList)
     {
@@ -47,7 +47,7 @@ public class MakeJSON
                 foundBeacons.put(beaconDat);
                 //TODO temperature and movement
             }
-            obj.put("beacons", foundBeacons);
+            obj.put("beacons_nearby", foundBeacons);
             //obj.put("beacons", foundBeacons);
             //obj.put("instance_id", )
         }
