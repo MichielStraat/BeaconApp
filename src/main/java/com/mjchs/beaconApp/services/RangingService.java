@@ -12,6 +12,11 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import com.estimote.sdk.MacAddress;
+import com.estimote.sdk.cloud.model.BeaconInfo;
+import com.estimote.sdk.connection.BeaconConnection;
+import com.estimote.sdk.connection.Property;
+import com.estimote.sdk.exception.EstimoteDeviceException;
 import com.mjchs.beaconApp.AppClass;
 import com.mjchs.beaconApp.Inference.Inference;
 import com.mjchs.beaconApp.Model.DataModel;
@@ -25,7 +30,10 @@ import com.mjchs.beaconApp.activities.ListBeacons;
 import org.json.JSONObject;
 
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -40,6 +48,9 @@ public class RangingService extends Service
     private AppClass globState;
     private DataModel model;
     private BeaconManager mBeaconManager;
+    private BeaconConnection connection;
+    private HashMap<String, Integer> scanCounts = new HashMap<String,Integer>();
+    private HashMap<String, BeaconConnection> connections;
 
     private static Region OUR_BEACONS = null;
 
@@ -67,6 +78,26 @@ public class RangingService extends Service
 
                 if (!list.isEmpty())
                 {
+                    removeAllBeaconsNotPresent(list);
+                    for (Beacon b : list)
+                    {
+                        String macAddress = b.getMacAddress().toString();
+                        if (scanCounts.containsKey(macAddress))
+                        {
+                            Integer count = scanCounts.get(macAddress);
+                            scanCounts.put(macAddress, count + 1);
+                            if (count + 1 == 2)
+                            {
+                                establishConnection(b);
+                            }
+                        }
+                        else
+                        {
+                            scanCounts.put(macAddress, 1);
+                        }
+                    }
+
+                    Log.d(TAG, scanCounts.toString());
                     try
                     {
                     /*Send all beacon data to the server*/
@@ -90,6 +121,9 @@ public class RangingService extends Service
                 }
                 else
                 {
+                    scanCounts.clear();
+                    closeConnections();
+                   // connections.clear();
                     mBeaconManager.setBackgroundScanPeriod(2000, 25000);
                     mBeaconManager.setForegroundScanPeriod(2000, 25000);
                 }
@@ -98,6 +132,88 @@ public class RangingService extends Service
 
         mBeaconManager.setBackgroundScanPeriod(2000, 5000);
         mBeaconManager.setForegroundScanPeriod(2000, 5000);
+    }
+
+    private void establishConnection(final Beacon b)
+    {
+            connection = new BeaconConnection(this, b, new BeaconConnection.ConnectionCallback() {
+            @Override
+            public void onAuthorized(BeaconInfo beaconInfo) {
+
+            }
+
+            @Override
+            public void onConnected(BeaconInfo beaconInfo) {
+                connection.temperature().getAsync(new Property.Callback<Float>() {
+                    @Override
+                    public void onValueReceived(Float temp) {
+                        JSONObject jsonTemp = MakeJSON.makeJSONTemp(temp, b);
+                        Log.d(TAG, jsonTemp.toString());
+                        new SendBeaconData().execute(jsonTemp);
+                    }
+
+                    @Override
+                    public void onFailure() {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onAuthenticationError(EstimoteDeviceException e) {
+
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+        });
+
+     //   connections.put(b.getMacAddress().toString(), connection);
+    }
+
+    private void closeConnections()
+    {
+        Iterator it = connections.entrySet().iterator();
+        while (it.hasNext())
+        {
+            Map.Entry pair = (Map.Entry) it.next();
+            BeaconConnection conn = (BeaconConnection) pair.getValue();
+            conn.close();
+        }
+    }
+
+    private boolean beaconPresent(String macAddress, List<Beacon> list)
+    {
+        for (Beacon b : list)
+        {
+            if (b.getMacAddress().toString().equals(macAddress))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes from scanCounts each beacon that is not in list
+     * @param list
+     */
+    private void removeAllBeaconsNotPresent(List<Beacon> list)
+    {
+        Iterator it = scanCounts.entrySet().iterator();
+        while (it.hasNext())
+        {
+            Map.Entry pair = (Map.Entry) it.next();
+            String macAddress = (String) pair.getKey();
+            if (!beaconPresent(macAddress, list))
+            {
+                //remove beacon from scanCounts
+                scanCounts.remove(macAddress);
+                BeaconConnection conn = connections.get(macAddress);
+                if (conn != null)
+                    conn.close();
+            }
+        }
     }
 
     private void startScanning()

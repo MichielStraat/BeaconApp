@@ -23,6 +23,8 @@ import android.provider.Settings.Secure;
 public class MakeJSON
 {
     public final static String TAG = "MakeJSON";
+    private static final String SENSORID = "sensor_id";
+    private static final String USERID = "user_id";
 
     public static JSONObject makeJSONAllBeacons(List<Beacon> beaconList)
     {
@@ -30,8 +32,8 @@ public class MakeJSON
 
         try
         {
-            obj.put("sensor_id", Sensors.PROXIMITY);
-            obj.put("user_id", AppClass.userID);
+            obj.put(SENSORID, Sensors.PROXIMITY);
+            obj.put(USERID, AppClass.userID);
             JSONArray foundBeacons = new JSONArray();
 
             for (Beacon b : beaconList)
@@ -63,7 +65,7 @@ public class MakeJSON
 
         try
         {
-            obj.put("user_id", AppClass.userID);
+            obj.put(USERID, AppClass.userID);
             obj.put("inRoom", room);
         }
         catch (JSONException ex)
@@ -74,4 +76,22 @@ public class MakeJSON
         return obj;
     }
 
+    public static JSONObject makeJSONTemp(Float temp, Beacon b)
+    {
+        JSONObject obj = new JSONObject();
+
+        try
+        {
+            obj.put(SENSORID, Sensors.TEMP);
+            obj.put("major", b.getMajor());
+            obj.put("minor", b.getMinor());
+            obj.put(USERID, AppClass.userID);
+            obj.put("value", temp);
+
+        } catch (JSONException ex) {
+            Log.d(TAG, ex.getMessage());
+        }
+
+        return obj;
+    }
 }
