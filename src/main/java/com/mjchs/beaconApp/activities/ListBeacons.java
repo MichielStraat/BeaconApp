@@ -151,14 +151,10 @@ public class ListBeacons extends BaseAppActivity implements Observer, InputUser.
     }
 
     @Override
-    public void onInput(String text)
+    public void onInput(String userID)
     {
-        if (!text.isEmpty())
+        if (!userID.isEmpty())
         {
-            Random r = new Random();
-            int x = r.nextInt(10000);
-            String userID = text + String.valueOf(x);
-
             settings.edit().putString(AppClass.SET_USER, userID)
                     .putBoolean(AppClass.SET_RANG, true)
                     .commit();
