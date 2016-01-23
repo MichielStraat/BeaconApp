@@ -32,22 +32,28 @@ public class MakeJSON
 
         try
         {
-            obj.put(SENSORID, Sensors.PROXIMITY);
-            obj.put(USERID, AppClass.userID);
+
             JSONArray foundBeacons = new JSONArray();
 
             for (Beacon b : beaconList)
             {
-                JSONObject beaconDat = new JSONObject();
-                beaconDat.put("major", b.getMajor());
-                beaconDat.put("minor", b.getMinor());
-                beaconDat.put("rssi", b.getRssi());
-                beaconDat.put("proximity_zone", Utils.computeProximity(b).name());
-                beaconDat.put("proximity_distance", Utils.computeAccuracy(b));
-                foundBeacons.put(beaconDat);
-                //TODO temperature and movement
+                JSONObject beaconEntry = new JSONObject();
+                beaconEntry.put("major", b.getMajor());
+                beaconEntry.put("minor", b.getMinor());
+
+                JSONObject proximityValues = new JSONObject();
+
+                proximityValues.put("rssi", b.getRssi());
+                proximityValues.put("proximity_zone", Utils.computeProximity(b).name());
+                proximityValues.put("proximity_distance", Utils.computeAccuracy(b));
+
+                beaconEntry.put("data", proximityValues);
+
+                foundBeacons.put(beaconEntry);
             }
+
             obj.put("beacons_nearby", foundBeacons);
+            obj.put(USERID, AppClass.userID);
             //obj.put("beacons", foundBeacons);
             //obj.put("instance_id", )
         }
