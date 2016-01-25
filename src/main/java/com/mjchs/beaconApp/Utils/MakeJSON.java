@@ -52,7 +52,7 @@ public class MakeJSON
                 foundBeacons.put(beaconEntry);
             }
 
-            obj.put("beacons_nearby", foundBeacons);
+            obj.put("nearby_data", foundBeacons);
             obj.put(USERID, AppClass.userID);
             //obj.put("beacons", foundBeacons);
             //obj.put("instance_id", )

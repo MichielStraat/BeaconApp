@@ -13,7 +13,7 @@ import org.json.JSONObject;
 public class SendBeaconData extends  AsyncTask<JSONObject, Integer, String>
 {
     public final static String TAG = "SendBeaconData";
-    private static final String ENDPOINT = "http://192.168.43.202:8082/bt/beacon";
+    private static final String ENDPOINT = "http://129.125.84.206:8082/bt/beacon";
 
     @Override
     protected String doInBackground(JSONObject... params)
