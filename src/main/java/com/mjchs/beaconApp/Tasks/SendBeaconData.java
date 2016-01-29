@@ -13,18 +13,23 @@ import org.json.JSONObject;
 public class SendBeaconData extends  AsyncTask<JSONObject, Integer, String>
 {
     public final static String TAG = "SendBeaconData";
-    private static final String ENDPOINT = "http://129.125.84.206:8082/bt/beacon";
+    private String endPoint;
+
+
+    public SendBeaconData(String endPoint)
+    {
+        this.endPoint = endPoint;
+    }
 
     @Override
     protected String doInBackground(JSONObject... params)
     {
         JSONObject result = null;
-        //Now send to server
 
         try
         {
             Webb webb = Webb.create();
-            result = webb.post(ENDPOINT)
+            result = webb.post(endPoint)
                     .useCaches(false)
                     .body(params[0])
                     .asJsonObject()

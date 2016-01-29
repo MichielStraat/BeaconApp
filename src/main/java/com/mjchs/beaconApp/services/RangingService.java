@@ -83,13 +83,13 @@ public class RangingService extends Service
                     /*Send all beacon data to the server*/
                         JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
                         Log.d(TAG, JSONAllBeacon.toString());
-                        new SendBeaconData().execute(JSONAllBeacon);
+                        new SendBeaconData("http://129.125.84.205:8086/bt/beacon").execute(JSONAllBeacon);
 
                         //optional: send inference too
                         int room = new Inference(list).performKNN(3);
                         JSONObject JSONInference = MakeJSON.makeJSONInference(room);
                         Log.d(TAG, JSONInference.toString());
-                        new SendBeaconData().execute(JSONInference);
+                        new SendBeaconData("http://192.168.178.19/newapi/putEntry.php").execute(JSONInference);
                     }
                     catch (Exception ex)
                     {
@@ -114,7 +114,6 @@ public class RangingService extends Service
 
     private void establishConnection(final Beacon b)
     {
-        if (b.getMajor() == 1281) {
             Log.d(TAG, "Establishing a connection with beacon " + b.getMajor());
             connection = new BeaconConnection(this, b, new BeaconConnection.ConnectionCallback()
             {
@@ -135,7 +134,7 @@ public class RangingService extends Service
                         {
                             JSONObject jsonTemp = MakeJSON.makeJSONTemp(temp, b);
                             Log.d(TAG, jsonTemp.toString());
-                            new SendBeaconData().execute(jsonTemp);
+                            //new SendBeaconData().execute(jsonTemp);
                         }
 
                         @Override
@@ -160,7 +159,6 @@ public class RangingService extends Service
             });
 
             //   connections.put(b.getMacAddress().toString(), connection);
-        }
     }
 
 
