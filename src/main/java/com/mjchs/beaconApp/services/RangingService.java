@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -60,7 +61,8 @@ public class RangingService extends Service
     {
         super.onCreate();
         //The custom UUID that is made
-        OUR_BEACONS = new Region("beacons", null, null, null);
+        //OUR_BEACONS = new Region("beacons", null, null, null);
+        OUR_BEACONS = new Region("beacons", UUID.fromString("6A89BF24-BE05-11E5-9912-BA0BE0483C18"), null, null);
 
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
@@ -108,8 +110,8 @@ public class RangingService extends Service
             }
         });
 
-        mBeaconManager.setBackgroundScanPeriod(2000, 5000);
-        mBeaconManager.setForegroundScanPeriod(2000, 5000);
+        mBeaconManager.setBackgroundScanPeriod(1500, 1500);
+        mBeaconManager.setForegroundScanPeriod(1500, 1500);
     }
 
     private void establishConnection(final Beacon b)

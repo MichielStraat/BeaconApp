@@ -1,10 +1,17 @@
 package com.mjchs.beaconApp.Inference;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
+import com.mjchs.beaconApp.AppClass;
+import com.mjchs.beaconApp.activities.BaseAppActivity;
+import com.mjchs.beaconApp.activities.ListBeacons;
+import com.mjchs.beaconApp.activities.Sensors;
 
 import java.util.List;
+import android.widget.Toast;
+
 
 /**
  *
@@ -42,6 +49,7 @@ public class Inference
             int room = mBeacons.get(j).getMajor();
             room /= 1000;
             Log.d("INFERENCE", "Beacon in room: " + room + " found");
+            Toast.makeText(AppClass.getCont(), "Beacon in room: " + room + " found!", Toast.LENGTH_SHORT).show();
             roomCount.put(room);
         }
 
