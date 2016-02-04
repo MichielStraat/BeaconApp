@@ -49,10 +49,9 @@ public class RangingService extends Service
     private DataModel model;
     private BeaconManager mBeaconManager;
     private BeaconConnection connection;
-
+    private boolean isExtended = false;
 
     private static Region OUR_BEACONS = null;
-
     private static final int NOTCONST = 223;
 
     @Override
@@ -65,114 +64,68 @@ public class RangingService extends Service
         globState = (AppClass)this.getApplication();
         model =  globState.getModel();
         mBeaconManager = globState.getManager();
+    }
 
-        mBeaconManager.setRangingListener(new BeaconManager.RangingListener()
+
+    private class RangListener implements BeaconManager.RangingListener
+    {
+        @Override
+        public void onBeaconsDiscovered(Region region, List<Beacon> list)
         {
-            @Override
-            public void onBeaconsDiscovered(Region region, List<Beacon> list) {
-                Log.d(TAG, "FROM SERIVCE, BEACONS FOUND WITH RANGING: " + ListBeacons.stringRepList(list));
+            Log.d(TAG, "FROM SERVICE, BEACONS FOUND WITH RANGING: " + ListBeacons.stringRepList(list));
 
-                //Set the data in the model
-                model.setData(list);
+            //Set the data in the model
+            model.setData(list);
 
-                if (!list.isEmpty())
-                {
+            if (!list.isEmpty()) {
 
-                    try
-                    {
-                    /*Send all beacon data to the server*/
-                        JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
-                        Log.d(TAG, JSONAllBeacon.toString());
-                        new SendBeaconData("http://129.125.84.205:8086/bt/beacon").execute(JSONAllBeacon);
+                try {
+                        /*Send all beacon data to the server*/
+                    JSONObject JSONAllBeacon = MakeJSON.makeJSONAllBeacons(list);
+                    Log.d(TAG, JSONAllBeacon.toString());
+                    new SendBeaconData("http://129.125.84.205:8086/bt/beacon").execute(JSONAllBeacon);
 
-                        //optional: send inference too
-                        int room = new Inference(list).performKNN(3);
-                        JSONObject JSONInference = MakeJSON.makeJSONInference(room);
-                        Log.d(TAG, JSONInference.toString());
-                        new SendBeaconData("http://192.168.178.19/newapi/putEntry.php").execute(JSONInference);
+                    //optional: send inference too
+                    int room = new Inference(list).performKNN(3);
+                    JSONObject JSONInference = MakeJSON.makeJSONInference(room);
+                    Log.d(TAG, JSONInference.toString());
+                    new SendBeaconData("http://192.168.178.19/newapi/putEntry.php").execute(JSONInference);
+
+                    if (isExtended) {
+                        adjustScan(2000, 5000);
+                        isExtended = false;
                     }
-                    catch (Exception ex)
-                    {
-                        Log.d(TAG, ex.getMessage());
-                    }
-
-                    mBeaconManager.setBackgroundScanPeriod(2000, 5000);
-                    mBeaconManager.setForegroundScanPeriod(2000, 5000);
-                }
-                else
-                {
-                   // connections.clear();
-                    mBeaconManager.setBackgroundScanPeriod(2000, 25000);
-                    mBeaconManager.setForegroundScanPeriod(2000, 25000);
+                } catch (Exception ex) {
+                    Log.d(TAG, ex.getMessage());
                 }
             }
-        });
-
-        mBeaconManager.setBackgroundScanPeriod(2000, 5000);
-        mBeaconManager.setForegroundScanPeriod(2000, 5000);
-    }
-
-    private void establishConnection(final Beacon b)
-    {
-            Log.d(TAG, "Establishing a connection with beacon " + b.getMajor());
-            connection = new BeaconConnection(this, b, new BeaconConnection.ConnectionCallback()
+            else
             {
-                @Override
-                public void onAuthorized(BeaconInfo beaconInfo)
-                {
-                    Log.d(TAG, "Authorized to beacon with major " + beaconInfo.major);
+                if (!isExtended) {
+                    adjustScan(2000, 25000);
+                    isExtended = true;
                 }
-
-                @Override
-                public void onConnected(BeaconInfo beaconInfo)
-                {
-                    Log.d(TAG, "Connected to beacon with major " + beaconInfo.major);
-                    connection.temperature().getAsync(new Property.Callback<Float>()
-                    {
-                        @Override
-                        public void onValueReceived(Float temp)
-                        {
-                            JSONObject jsonTemp = MakeJSON.makeJSONTemp(temp, b);
-                            Log.d(TAG, jsonTemp.toString());
-                            //new SendBeaconData().execute(jsonTemp);
-                        }
-
-                        @Override
-                        public void onFailure()
-                        {
-                            Log.d(TAG, "Failed to retrieve temperature value");
-                        }
-                    });
-                }
-
-                @Override
-                public void onAuthenticationError(EstimoteDeviceException e)
-                {
-                    Log.d(TAG, "Authentication error when connecting to beacon");
-                }
-
-                @Override
-                public void onDisconnected()
-                {
-
-                }
-            });
-
-            //   connections.put(b.getMacAddress().toString(), connection);
+            }
+        }
     }
 
 
-    private void startScanning()
+    private void adjustScan(final int scanningTime, final int waitingTime)
     {
         mBeaconManager.stopRanging(OUR_BEACONS);
+        mBeaconManager.disconnect();
+        mBeaconManager.setRangingListener(new RangListener());
+        mBeaconManager.setForegroundScanPeriod(scanningTime, waitingTime);
         mBeaconManager.connect(new BeaconManager.ServiceReadyCallback()
         {
             @Override
             public void onServiceReady()
             {
                 mBeaconManager.startRanging(OUR_BEACONS);
+                Log.d(TAG, "Scan time adjusted!");
             }
         });
+
     }
 
     @Nullable
@@ -185,7 +138,7 @@ public class RangingService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        startScanning();
+        adjustScan(2000, 5000);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(android.support.v7.appcompat.R.drawable.notification_template_icon_bg)
@@ -193,10 +146,10 @@ public class RangingService extends Service
                 .setContentText("Ranging for beacons...")
                 .setOngoing(true);
 
-        Intent restulIntent = new Intent(this, ListBeacons.class);
+        Intent resultIntent = new Intent(this, ListBeacons.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(ListBeacons.class);
-        stackBuilder.addNextIntent(restulIntent);
+        stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
