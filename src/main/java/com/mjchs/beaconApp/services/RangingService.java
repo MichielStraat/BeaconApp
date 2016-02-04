@@ -122,7 +122,7 @@ public class RangingService extends Service
             public void onServiceReady()
             {
                 mBeaconManager.startRanging(OUR_BEACONS);
-                Log.d(TAG, "Scan time adjusted!");
+                Log.d(TAG, "Scan time adjusted to scantime " + scanningTime + " and waiting time " + waitingTime + "!");
             }
         });
 
